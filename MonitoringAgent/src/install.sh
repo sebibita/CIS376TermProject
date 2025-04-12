@@ -5,7 +5,7 @@
 INSTALL="dnf install"
 
 # install dependencies
-$INSTALL g++ libcurl
+$INSTALL g++ libcurl-devel cpr 
 
 # build 
 g++ ./src/monitoring_agent.cpp -o ./src/agent -lcpr -lcurl
@@ -18,6 +18,8 @@ cp ./src/monitoring_agent.rules /etc/audit/rules.d/
 
 # auditd plugin
 cp ./src/agent.conf /etc/audit/plugins.d/agent.conf
+cp ./src/monitoring_agent.conf /etc/monitoring_agent.conf
+chmod 644 /etc/monitoring_agent.conf
 
 # audit config
 cp ./src/auditd.conf /etc/audit/auditd.conf
