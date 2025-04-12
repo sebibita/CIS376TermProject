@@ -2,10 +2,8 @@ services:
   frontend:
     build:
       context: ./frontend
-    volumes:
-      - ./frontend/dashboard:/app
-      - /app/node_modules
-      - /app/.next
+#    volumes:
+#      - ./frontend/dashboard/src:/app
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     environment:
