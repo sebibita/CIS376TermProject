@@ -12,17 +12,19 @@ export default function EventDashboard() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const res = await fetch(`http://localhost:5001/test`, {
+        const res = await fetch('/api/dbtest', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          cache: 'no-store', // Ensures fresh data
+          cache: 'no-store',
         });
 
         if (!res.ok) {
@@ -30,9 +32,12 @@ export default function EventDashboard() {
         }
 
         const data = await res.json();
-        setEvents(data);
+        // Ensure data is an array
+        setEvents(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching events:', error);
+        setError('Failed to load events');
+        setEvents([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
@@ -78,11 +83,15 @@ export default function EventDashboard() {
           <div className="border rounded p-4 h-96 overflow-y-auto bg-white">
             {loading ? (
               <p>Loading events...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : events.length === 0 ? (
+              <p>No events found</p>
             ) : (
               events.map((event, index) => (
                 <div key={index} className="border-b py-2">
-                  <p className="font-semibold">{event.type} - {event.severity}</p>
-                  <p className="text-sm text-gray-600">{event.message}</p>
+                  <p className="font-semibold">{event.type || 'Unknown'} - {event.severity || 'N/A'}</p>
+                  <p className="text-sm text-gray-600">{event.message || 'No message'}</p>
                 </div>
               ))
             )}

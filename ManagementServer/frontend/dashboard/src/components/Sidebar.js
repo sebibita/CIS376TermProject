@@ -22,16 +22,6 @@ export default function Sidebar() {
         </Link>
         {/* Add more links as needed */}
       </nav>
-
-      {/* Logout Button at the bottom */}
-      <div className="absolute bottom-4 left-4 right-4">
-        <button 
-          // onClick={handleLogout} // Add logout handler later
-          className="w-full py-2 px-3 rounded bg-red-500 text-white hover:bg-red-600 text-center font-medium"
-        >
-          Logout
-        </button>
-      </div>
     </aside>
   );
 } 

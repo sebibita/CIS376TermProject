@@ -2,19 +2,49 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    setError('');
+    setIsLoading(true);
+
+    if (!username || !password) {
+      setError('Please enter both username and password.');
+      setIsLoading(false);
       return;
     }
-    console.log('Login attempt with:', { email, password });
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Invalid username or password');
+        setIsLoading(false);
+        return;
+      }
+
+      // Only redirect if login was successful
+      router.push('/dashboard');
+    } catch (err) {
+      setError('An error occurred during login');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,17 +56,18 @@ export default function LoginPage() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email address
+            <label htmlFor="username" className="block text-sm font-medium mb-2">
+              Username
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="auth-input"
-              placeholder="you@example.com"
+              placeholder="Enter your username"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -51,10 +82,17 @@ export default function LoginPage() {
               required
               className="auth-input"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <button type="submit" className="auth-button">Sign in</button>
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing in...' : 'Sign in'}
+          </button>
         </form>
         <p className="mt-6 text-center text-sm">
           Don't have an account?{' '}

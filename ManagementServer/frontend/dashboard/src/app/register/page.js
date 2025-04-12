@@ -2,25 +2,55 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password || !confirmPassword) {
+    setError('');
+    setIsLoading(true);
+
+    if (!username || !password || !confirmPassword) {
       setError('Please fill in all fields.');
+      setIsLoading(false);
       return;
     }
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
+      setIsLoading(false);
       return;
     }
-    console.log('Registration attempt with:', { name, email, password });
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Registration failed');
+        setIsLoading(false);
+        return;
+      }
+
+      // Successful registration
+      router.push('/login');
+    } catch (err) {
+      setError('An error occurred during registration');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -32,31 +62,18 @@ export default function RegisterPage() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-2">
-              Full name
+            <label htmlFor="username" className="block text-sm font-medium mb-2">
+              Username
             </label>
             <input
               type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="auth-input"
-              placeholder="John Doe"
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="auth-input"
-              placeholder="you@example.com"
+              placeholder="Choose a username"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -71,6 +88,7 @@ export default function RegisterPage() {
               required
               className="auth-input"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -85,10 +103,17 @@ export default function RegisterPage() {
               required
               className="auth-input"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <button type="submit" className="auth-button">Create account</button>
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating account...' : 'Create account'}
+          </button>
         </form>
         <p className="mt-6 text-center text-sm">
           Already have an account?{' '}
