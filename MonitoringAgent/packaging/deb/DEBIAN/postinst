@@ -1,4 +1,0 @@
-#!/bin/bash
-systemctl daemon-reload
-systemctl enable monitoring_agent.service
-systemctl start monitoring_agent.service || :

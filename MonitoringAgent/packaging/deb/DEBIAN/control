@@ -1,8 +1,0 @@
-Package: monitoring_agent
-Version: 1.0
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: Ted Nowicki
-Depends: systemd, auditd
-Description: Monitors processes and sends logs to the management server.

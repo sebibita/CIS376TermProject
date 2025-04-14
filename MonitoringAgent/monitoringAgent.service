@@ -1,0 +1,12 @@
+[Unit]
+Description=Monitoring Agent
+After=network.target
+
+[Service]
+ExecStart=/bin/monitoringAgent
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target
+
